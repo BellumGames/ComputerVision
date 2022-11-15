@@ -632,12 +632,11 @@ namespace ComputerVision
 
         private int Normalizeaza(int value)
         {
-            switch (value) 
-            {
-                case 255: return 255;
-                case 0: return 0;
-                default: return value;
-            }
+            if (value > 255)
+                return 255;
+            if (value < 0)
+                return 0;
+            return value;
         }
 
         private void btnUnsharp_Click(object sender, EventArgs e)
@@ -718,7 +717,7 @@ namespace ComputerVision
                     {
                         for (int col = j - 1; col <= j + 1; col++)
                         {
-                            color = workImage.GetPixel(i, j);
+                            color = workImage.GetPixel(row, col);
                             int R = color.R;
                             int G = color.G;
                             int B = color.B;
