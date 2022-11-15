@@ -632,11 +632,12 @@ namespace ComputerVision
 
         private int Normalizeaza(int value)
         {
-            if (value > 255)
-                return 255;
-            if (value < 0)
-                return 0;
-            return value;
+            switch (value) 
+            {
+                case 255: return 255;
+                case 0: return 0;
+                default: return value;
+            }
         }
 
         private void btnUnsharp_Click(object sender, EventArgs e)
@@ -704,41 +705,51 @@ namespace ComputerVision
             int[,] H3 = new int[3, 3] { { 0, 1, 1 }, { -1, 0, 1 }, { -1, -1, 0 } };
             int[,] H4 = new int[3, 3] { { 1, 1, 0 }, { 1, 0, -1 }, { 0, -1, -1 } };
 
-            for (int i = 1; i < workImage.Width - 1; i++)
+            for (int i = 1; i < workImage.Width - 2; i++)
             {
-                for (int j = 1; j < workImage.Height - 1; j++)
+                for (int j = 1; j < workImage.Height - 2; j++)
                 {
-                    color = workImage.GetPixel(i, j);
-                    int R = color.R;
-                    int G = color.G;
-                    int B = color.B;
                     int sumR = 0, sumG = 0, sumB = 0;
                     int sumR1 = 0, sumG1 = 0, sumB1 = 0;
                     int sumR2 = 0, sumG2 = 0, sumB2 = 0;
                     int sumR3 = 0, sumG3 = 0, sumB3 = 0;
                     int sumR4 = 0, sumG4 = 0, sumB4 = 0;
+                    for (int row = i - 1; row <= i + 1; row++)
+                    {
+                        for (int col = j - 1; col <= j + 1; col++)
+                        {
+                            color = workImage.GetPixel(i, j);
+                            int R = color.R;
+                            int G = color.G;
+                            int B = color.B;
 
-                    sumR1 += R * H1[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumG1 += G * H1[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumB1 += B * H1[workImage.Width - i + 1, workImage.Height - j + 1];
+                            sumR1 += R * H1[row - i + 1, col - j + 1];
+                            sumG1 += G * H1[row - i + 1, col - j + 1];
+                            sumB1 += B * H1[row - i + 1, col - j + 1];
 
-                    sumR2 += R * H2[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumG2 += G * H2[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumB2 += B * H2[workImage.Width - i + 1, workImage.Height - j + 1];
+                            sumR2 += R * H2[row - i + 1, col - j + 1];
+                            sumG2 += G * H2[row - i + 1, col - j + 1];
+                            sumB2 += B * H2[row - i + 1, col - j + 1];
 
-                    sumR3 += R * H3[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumG3 += G * H3[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumB3 += B * H3[workImage.Width - i + 1, workImage.Height - j + 1];
+                            sumR3 += R * H3[row - i + 1, col - j + 1];
+                            sumG3 += G * H3[row - i + 1, col - j + 1];
+                            sumB3 += B * H3[row - i + 1, col - j + 1];
 
-                    sumR4 += R * H4[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumG4 += G * H4[workImage.Width - i + 1, workImage.Height - j + 1];
-                    sumB4 += B * H4[workImage.Width - i + 1, workImage.Height - j + 1];
+                            sumR4 += R * H4[row - i + 1, col - j + 1];
+                            sumG4 += G * H4[row - i + 1, col - j + 1];
+                            sumB4 += B * H4[row - i + 1, col - j + 1];
+                        }
+                    }
 
                     sumR = Math.Max(Math.Max(sumR1, sumR2), Math.Max(sumR3, sumR4));
                     sumG = Math.Max(Math.Max(sumG1, sumG2), Math.Max(sumG3, sumG4));
                     sumB = Math.Max(Math.Max(sumB1, sumB2), Math.Max(sumB3, sumB4));
 
-                    color = GKirsch(sumR,sumG,sumB);
+                    sumR = Normalizeaza(sumR);
+                    sumG = Normalizeaza(sumG);
+                    sumB = Normalizeaza(sumB);
+
+                    color = Color.FromArgb(sumR, sumG, sumB);
                     temp.SetPixel(i, j, color);
                 }
             }
@@ -747,15 +758,6 @@ namespace ComputerVision
             panelDestination.BackgroundImage = temp.GetBitMap();
             temp.Unlock();
             workImage.Unlock();
-        }
-
-        private Color GKirsch(int sumR, int sumG, int sumB) 
-        {
-            sumR = Normalizeaza(sumR);
-            sumG = Normalizeaza(sumG);
-            sumB = Normalizeaza(sumB);
-            Color c = Color.FromArgb(sumR, sumG, sumB);
-            return c;
         }
     }
 }
