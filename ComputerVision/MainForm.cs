@@ -639,6 +639,15 @@ namespace ComputerVision
             return value;
         }
 
+        private int Normalizeaza(double value)
+        {
+            if (value > 255)
+                return 255;
+            if (value < 0)
+                return 0;
+            return (int)value;
+        }
+
         private void btnUnsharp_Click(object sender, EventArgs e)
         {
             Color color;
@@ -757,6 +766,137 @@ namespace ComputerVision
             panelDestination.BackgroundImage = temp.GetBitMap();
             temp.Unlock();
             workImage.Unlock();
+        }
+
+        private void btnGabor_Click(object sender, EventArgs e)
+        {
+            //Gabor
+            Color color;
+            image = new Bitmap(sSourceFileName);
+            FastImage temp = new FastImage(image);
+            temp.Lock();
+            workImage.Lock();
+
+            int[,] P = new int[3, 3] { { 1, 1, 1 }, { 0, 0, 0  }, { -1, -1, -1 } };
+            int[,] Q = new int[3, 3] { { -1, 0, 1 }, { -1, 0, 1 }, { -1, 0, 1 } };
+            double pi = Math.PI;
+            double teta = 0.66;
+            double omega = 1.5;
+            double euler = Math.E;
+
+            for (int i = 1; i < workImage.Width - 2; i++)
+            {
+                for (int j = 1; j < workImage.Height - 2; j++)
+                {
+                    int sumRP = 0, sumGP = 0, sumBP = 0;
+                    int sumRQ = 0, sumGQ = 0, sumBQ = 0;
+                    for (int row = i - 1; row <= i + 1; row++)
+                    {
+                        for (int col = j - 1; col <= j + 1; col++)
+                        {
+                            color = workImage.GetPixel(row, col);
+                            int R = color.R;
+                            int G = color.G;
+                            int B = color.B;
+
+                            sumRP += R * P[row - i + 1, col - j + 1];
+                            sumGP += G * P[row - i + 1, col - j + 1];
+                            sumBP += B * P[row - i + 1, col - j + 1];
+
+                            sumRQ += R * Q[row - i + 1, col - j + 1];
+                            sumGQ += G * Q[row - i + 1, col - j + 1];
+                            sumBQ += B * Q[row - i + 1, col - j + 1];
+                        }
+                    }
+                    double uR = 0, uG = 0, uB = 0;
+
+                    //Red
+                    if (sumRQ == 0)
+                    {
+                        if (sumRP >= 0)
+                            uR = pi / 2;
+                        else if (sumRP < 0)
+                            uR = -1 * pi / 2;
+                    }
+                    else 
+                    {
+                        uR = Math.Atan(sumRP / sumRQ);
+                        if (sumRQ < 0)
+                            uR = uR + pi;
+                    }
+                    uR = uR + (pi / 2);
+                    
+                    //Green
+                    if (sumGQ == 0)
+                    {
+                        if (sumGP >= 0)
+                            uG = pi / 2;
+                        else if (sumGP < 0)
+                            uG = -1 * pi / 2;
+                    }
+                    else
+                    {
+                        uG = Math.Atan(sumGP / sumGQ);
+                        if (sumGQ < 0)
+                            uG = uG + pi;
+                    }
+                    uG = uG + (pi / 2);
+
+                    //Blue
+                    if (sumBQ == 0)
+                    {
+                        if (sumBP >= 0)
+                            uB = pi / 2;
+                        else if (sumBP < 0)
+                            uB = -1 * pi / 2;
+                    }
+                    else
+                    {
+                        uB = Math.Atan(sumBP / sumBQ);
+                        if (sumBQ < 0)
+                            uB = uB + pi;
+                    }
+                    uB = uB + (pi / 2);
+
+                    double sumR = 0, sumG = 0, sumB = 0;
+                    for (int row = i - 1; row <= i + 1; row++)
+                    {
+                        for (int col = j - 1; col <= j + 1; col++)
+                        {
+                            int pozR = row - i + 1;
+                            int pozC = col - j + 1;
+                            color = workImage.GetPixel(row, col);
+                            int R = color.R;
+                            int G = color.G;
+                            int B = color.B;
+                            double scaleR = 0, scaleG = 0, scaleB = 0;
+
+                            //Red
+                            scaleR = Math.Pow(euler, (-1 * ((Math.Pow(pozR, 2) + Math.Pow(pozC, 2)) / (2 * Math.Pow(teta, 2))))) * Math.Sin(omega * (pozR * Math.Cos(uR) + pozC * Math.Sin(uR)));
+                            sumR += scaleR * R;
+                            //Green
+                            scaleG = Math.Pow(euler, (-1 * ((Math.Pow(pozR, 2) + Math.Pow(pozC, 2)) / (2 * Math.Pow(teta, 2))))) * Math.Sin(omega * (pozR * Math.Cos(uG) + pozC * Math.Sin(uG)));
+                            sumG += scaleG * G;
+                            //Blue
+                            scaleB = Math.Pow(euler, (-1 * ((Math.Pow(pozR, 2) + Math.Pow(pozC, 2)) / (2 * Math.Pow(teta, 2))))) * Math.Sin(omega * (pozR * Math.Cos(uB) + pozC * Math.Sin(uB)));
+                            sumB += scaleB * B;
+                        }
+                    }
+                    //Setare Culoare si normalizare
+                    int colorR = Normalizeaza(sumR);
+                    int colorG = Normalizeaza(sumG);
+                    int colorB = Normalizeaza(sumB);
+
+                    color = Color.FromArgb(colorR, colorG, colorB);
+                    temp.SetPixel(i, j, color);
+                }
+            }
+
+            panelDestination.BackgroundImage = null;
+            panelDestination.BackgroundImage = temp.GetBitMap();
+            temp.Unlock();
+            workImage.Unlock();
+            //Gabor
         }
     }
 }

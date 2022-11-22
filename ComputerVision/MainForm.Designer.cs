@@ -47,6 +47,7 @@ namespace ComputerVision
             this.btnFTS = new System.Windows.Forms.Button();
             this.btnUnsharp = new System.Windows.Forms.Button();
             this.btnKirsch = new System.Windows.Forms.Button();
+            this.btnGabor = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackContrast)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBrightness)).BeginInit();
@@ -239,11 +240,22 @@ namespace ComputerVision
             this.btnKirsch.UseVisualStyleBackColor = true;
             this.btnKirsch.Click += new System.EventHandler(this.btnKirsch_Click);
             // 
+            // btnGabor
+            // 
+            this.btnGabor.Location = new System.Drawing.Point(12, 352);
+            this.btnGabor.Name = "btnGabor";
+            this.btnGabor.Size = new System.Drawing.Size(75, 23);
+            this.btnGabor.TabIndex = 28;
+            this.btnGabor.Text = "Gabor";
+            this.btnGabor.UseVisualStyleBackColor = true;
+            this.btnGabor.Click += new System.EventHandler(this.btnGabor_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(680, 473);
+            this.Controls.Add(this.btnGabor);
             this.Controls.Add(this.btnKirsch);
             this.Controls.Add(this.btnUnsharp);
             this.Controls.Add(this.btnFTS);
@@ -287,6 +299,7 @@ namespace ComputerVision
         private System.Windows.Forms.Button btnFTS;
         private System.Windows.Forms.Button btnUnsharp;
         private System.Windows.Forms.Button btnKirsch;
+        private System.Windows.Forms.Button btnGabor;
     }
 }
 
