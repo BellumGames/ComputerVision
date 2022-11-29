@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace ComputerVision
 {
@@ -15,6 +16,7 @@ namespace ComputerVision
     {
         private string sSourceFileName = "";
         private FastImage workImage;
+        private FastImage workImage2;
         private Bitmap image = null;
         private int[,] Q = new int[1000, 1000];
 
@@ -50,6 +52,7 @@ namespace ComputerVision
             panelSource.BackgroundImage = new Bitmap(sSourceFileName);
             image = new Bitmap(sSourceFileName);
             workImage = new FastImage(image);
+            workImage2 = new FastImage(image);
             fill();
         }
 
@@ -897,6 +900,114 @@ namespace ComputerVision
             temp.Unlock();
             workImage.Unlock();
             //Gabor
+        }
+
+        private void panelSource_MouseClick(object sender, MouseEventArgs e)
+        {
+            //Region Growing
+            int x, y;
+            int prag = 100;
+            workImage.Lock();
+            workImage2.Lock();
+            x = e.X * (workImage.Width / panelSource.Width);
+            y = e.Y * (workImage.Height / panelSource.Height);
+
+            Queue<Color> Q = new Queue<Color>();
+            Queue<Color> R = new Queue<Color>();
+            int[,] vizitat = new int[workImage.Width, workImage.Height];
+            for (int i = 1; i < workImage.Width - 2; i++)
+            {
+                for (int j = 1; j < workImage.Height - 2; j++)
+                {
+                    vizitat[i, j] = 0;
+                }
+            }
+            Color pixel = workImage.GetPixel(x, y);
+            Q.Enqueue(pixel);
+            R.Enqueue(pixel);
+            double medie = 0;
+            int avr = ((pixel.R + pixel.G + pixel.B) / 3);
+            double suma = avr;
+            while (Q.Count != 0)
+            {
+                if (x - 1 >= workImage.Width)
+                {
+                    Color pixelLeft = workImage.GetPixel(x - 1, y);
+                    byte RL = pixelLeft.R;
+                    byte GL = pixelLeft.G;
+                    byte BL = pixelLeft.B;
+
+                    byte averagePixelLeft = (byte)((RL + GL + BL) / 3);
+                    medie = suma / R.Count;
+                    if ((Math.Abs(averagePixelLeft - medie) < prag) && (vizitat[x - 1, y] == 0))
+                    {
+                        Q.Enqueue(pixelLeft);
+                        R.Enqueue(pixelLeft);
+                        suma += averagePixelLeft;
+                        vizitat[x - 1, y] = 1;
+                        workImage2.SetPixel(x - 1, y, pixelLeft);
+                    }
+                }
+                if (x + 1 <= workImage.Width)
+                {
+                    Color pixelRight = workImage.GetPixel(x + 1, y);
+                    byte RR = pixelRight.R;
+                    byte GR = pixelRight.G;
+                    byte BR = pixelRight.B;
+
+                    byte averagePixelRight = (byte)((RR + GR + BR) / 3);
+                    medie = suma / R.Count;
+                    if ((Math.Abs(averagePixelRight - medie) < prag) && (vizitat[x + 1, y] == 0))
+                    {
+                        Q.Enqueue(pixelRight);
+                        R.Enqueue(pixelRight);
+                        suma += averagePixelRight;
+                        vizitat[x + 1, y] = 1;
+                        workImage2.SetPixel(x + 1, y, pixelRight);
+                    }
+                }
+                if (y + 1 <= workImage.Height)
+                {
+                    Color pixelTop = workImage.GetPixel(x, y + 1);
+                    byte RT = pixelTop.R;
+                    byte GT = pixelTop.G;
+                    byte BT = pixelTop.B;
+
+                    byte averagePixelTop = (byte)((RT + GT + BT) / 3);
+                    medie = suma / R.Count;
+                    if ((Math.Abs(averagePixelTop - medie) < prag) && (vizitat[x, y + 1] == 0))
+                    {
+                        Q.Enqueue(pixelTop);
+                        R.Enqueue(pixelTop);
+                        suma += averagePixelTop;
+                        vizitat[x, y + 1] = 1;
+                        workImage2.SetPixel(x, y + 1, pixelTop);
+                    }
+                }
+                if (y - 1 >= workImage.Height)
+                {
+                    Color pixelBottom = workImage.GetPixel(x, y - 1);
+                    byte RB = pixelBottom.R;
+                    byte GB = pixelBottom.G;
+                    byte BB = pixelBottom.B;
+
+                    byte averagePixelBottom = (byte)((RB + GB + BB) / 3);
+                    medie = suma / R.Count;
+                    if ((Math.Abs(averagePixelBottom - medie) < prag) && (vizitat[x, y - 1] == 0))
+                    {
+                        Q.Enqueue(pixelBottom);
+                        R.Enqueue(pixelBottom);
+                        suma += averagePixelBottom;
+                        vizitat[x, y - 1] = 1;
+                        workImage2.SetPixel(x, y - 1, pixelBottom);
+                    }
+                }
+                Q.Dequeue();
+            }
+            panelDestination.BackgroundImage = null;
+            panelDestination.BackgroundImage = workImage2.GetBitMap();
+            workImage.Unlock();
+            workImage2.Unlock();
         }
     }
 }

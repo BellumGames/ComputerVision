@@ -62,6 +62,7 @@ namespace ComputerVision
             this.panelSource.Name = "panelSource";
             this.panelSource.Size = new System.Drawing.Size(320, 240);
             this.panelSource.TabIndex = 0;
+            this.panelSource.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelSource_MouseClick);
             // 
             // panelDestination
             // 
