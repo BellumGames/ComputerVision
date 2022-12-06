@@ -1012,8 +1012,8 @@ namespace ComputerVision
 
         private void btnSaM_Click(object sender, EventArgs e)
         {
-            int T;
-            T = Convert.ToInt32(boxSaM.Text);
+            double T;
+            T = Convert.ToDouble(boxSaM.Text);
 
             Color color;
             image = new Bitmap(sSourceFileName);
@@ -1022,11 +1022,14 @@ namespace ComputerVision
             workImage.Lock();
 
             //----------------------------------------------
+            double N = workImage.Width * workImage.Height;
             for (int i = 1; i < workImage.Width - 2; i++)
             {
                 for (int j = 1; j < workImage.Height - 2; j++)
                 {
                     int colorR = 0, colorG = 0, colorB = 0;
+                    double IR = 0, IG = 0, IB = 0;//I
+                    double DR = 0, DG = 0, DB = 0;//Sigma
                     for (int row = i - 1; row <= i + 1; row++)
                     {
                         for (int col = j - 1; col <= j + 1; col++) 
@@ -1035,8 +1038,37 @@ namespace ComputerVision
                             colorR = color.R;
                             colorG = color.G;
                             colorB = color.B;
+
+                            IR += colorR;
+                            IG += colorG;
+                            IB += colorB;
                         }
                     }
+                    IR /= N;
+                    IG /= N;
+                    IB /= N;
+                    for (int row = i - 1; row <= i + 1; row++)
+                    {
+                        for (int col = j - 1; col <= j + 1; col++)
+                        {
+                            color = workImage.GetPixel(row, col);
+                            colorR = color.R;
+                            colorG = color.G;
+                            colorB = color.B;
+
+                            DR += Math.Pow(colorR - IR, 2);
+                            DG += Math.Pow(colorG - IG, 2);
+                            DB += Math.Pow(colorB - IB, 2);
+                        }
+                    }
+                    DR /= (N - 1);
+                    DG /= (N - 1);
+                    DB /= (N - 1);
+                    N /= 4;
+                    _ = DR < T ? true : false;
+                    _ = DG < T ? true : false;
+                    _ = DB < T ? true : false;
+
                     colorR = Normalizeaza(colorR);
                     colorG = Normalizeaza(colorG);
                     colorB = Normalizeaza(colorB);
