@@ -48,6 +48,8 @@ namespace ComputerVision
             this.btnUnsharp = new System.Windows.Forms.Button();
             this.btnKirsch = new System.Windows.Forms.Button();
             this.btnGabor = new System.Windows.Forms.Button();
+            this.boxSaM = new System.Windows.Forms.TextBox();
+            this.btnSaM = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackContrast)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBrightness)).BeginInit();
@@ -251,11 +253,31 @@ namespace ComputerVision
             this.btnGabor.UseVisualStyleBackColor = true;
             this.btnGabor.Click += new System.EventHandler(this.btnGabor_Click);
             // 
+            // boxSaM
+            // 
+            this.boxSaM.Location = new System.Drawing.Point(242, 384);
+            this.boxSaM.Name = "boxSaM";
+            this.boxSaM.Size = new System.Drawing.Size(100, 20);
+            this.boxSaM.TabIndex = 0;
+            this.boxSaM.Text = "50";
+            // 
+            // btnSaM
+            // 
+            this.btnSaM.Location = new System.Drawing.Point(242, 352);
+            this.btnSaM.Name = "btnSaM";
+            this.btnSaM.Size = new System.Drawing.Size(100, 23);
+            this.btnSaM.TabIndex = 29;
+            this.btnSaM.Text = "Split and Merge";
+            this.btnSaM.UseVisualStyleBackColor = true;
+            this.btnSaM.Click += new System.EventHandler(this.btnSaM_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(680, 473);
+            this.Controls.Add(this.btnSaM);
+            this.Controls.Add(this.boxSaM);
             this.Controls.Add(this.btnGabor);
             this.Controls.Add(this.btnKirsch);
             this.Controls.Add(this.btnUnsharp);
@@ -301,6 +323,8 @@ namespace ComputerVision
         private System.Windows.Forms.Button btnUnsharp;
         private System.Windows.Forms.Button btnKirsch;
         private System.Windows.Forms.Button btnGabor;
+        private System.Windows.Forms.TextBox boxSaM;
+        private System.Windows.Forms.Button btnSaM;
     }
 }
 

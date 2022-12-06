@@ -1009,5 +1009,47 @@ namespace ComputerVision
             workImage.Unlock();
             workImage2.Unlock();
         }
+
+        private void btnSaM_Click(object sender, EventArgs e)
+        {
+            int T;
+            T = Convert.ToInt32(boxSaM.Text);
+
+            Color color;
+            image = new Bitmap(sSourceFileName);
+            FastImage temp = new FastImage(image);
+            temp.Lock();
+            workImage.Lock();
+
+            //----------------------------------------------
+            for (int i = 1; i < workImage.Width - 2; i++)
+            {
+                for (int j = 1; j < workImage.Height - 2; j++)
+                {
+                    int colorR = 0, colorG = 0, colorB = 0;
+                    for (int row = i - 1; row <= i + 1; row++)
+                    {
+                        for (int col = j - 1; col <= j + 1; col++) 
+                        {
+                            color = workImage.GetPixel(row, col);
+                            colorR = color.R;
+                            colorG = color.G;
+                            colorB = color.B;
+                        }
+                    }
+                    colorR = Normalizeaza(colorR);
+                    colorG = Normalizeaza(colorG);
+                    colorB = Normalizeaza(colorB);
+                    color = Color.FromArgb(colorR, colorG, colorB);
+                    temp.SetPixel(i, j, color);
+                }
+            }
+            //----------------------------------------------
+
+            panelDestination.BackgroundImage = null;
+            panelDestination.BackgroundImage = temp.GetBitMap();
+            temp.Unlock();
+            workImage.Unlock();
+        }
     }
 }
