@@ -1015,7 +1015,7 @@ namespace ComputerVision
             double T;
             T = Convert.ToDouble(boxSaM.Text);
 
-            Color color;
+            Color color = Color.Black;
             image = new Bitmap(sSourceFileName);
             FastImage temp = new FastImage(image);
             temp.Lock();
@@ -1027,52 +1027,22 @@ namespace ComputerVision
             {
                 for (int j = 1; j < workImage.Height - 2; j++)
                 {
-                    int colorR = 0, colorG = 0, colorB = 0;
-                    double IR = 0, IG = 0, IB = 0;//I
-                    double DR = 0, DG = 0, DB = 0;//Sigma
-                    for (int row = i - 1; row <= i + 1; row++)
-                    {
-                        for (int col = j - 1; col <= j + 1; col++) 
-                        {
-                            color = workImage.GetPixel(row, col);
-                            colorR = color.R;
-                            colorG = color.G;
-                            colorB = color.B;
+                    int colorRGB = 0;
+                    double I = 0;//I
+                    double D = 0;//Sigma
 
-                            IR += colorR;
-                            IG += colorG;
-                            IB += colorB;
-                        }
-                    }
-                    IR /= N;
-                    IG /= N;
-                    IB /= N;
                     for (int row = i - 1; row <= i + 1; row++)
                     {
                         for (int col = j - 1; col <= j + 1; col++)
                         {
                             color = workImage.GetPixel(row, col);
-                            colorR = color.R;
-                            colorG = color.G;
-                            colorB = color.B;
-
-                            DR += Math.Pow(colorR - IR, 2);
-                            DG += Math.Pow(colorG - IG, 2);
-                            DB += Math.Pow(colorB - IB, 2);
+                            colorRGB = (color.R + color.G + color.B) / 3;
+                            I += colorRGB;
                         }
                     }
-                    DR /= (N - 1);
-                    DG /= (N - 1);
-                    DB /= (N - 1);
-                    N /= 4;
-                    _ = DR < T ? true : false;
-                    _ = DG < T ? true : false;
-                    _ = DB < T ? true : false;
-
-                    colorR = Normalizeaza(colorR);
-                    colorG = Normalizeaza(colorG);
-                    colorB = Normalizeaza(colorB);
-                    color = Color.FromArgb(colorR, colorG, colorB);
+                    Split(T, ref color, ref N, i, j, ref colorRGB, ref I, ref D);
+                    colorRGB = Normalizeaza(colorRGB);
+                    color = Color.FromArgb(colorRGB, colorRGB, colorRGB);
                     temp.SetPixel(i, j, color);
                 }
             }
@@ -1082,6 +1052,27 @@ namespace ComputerVision
             panelDestination.BackgroundImage = temp.GetBitMap();
             temp.Unlock();
             workImage.Unlock();
+        }
+
+        private void Split(double T, ref Color color, ref double N, int i, int j, ref int colorRGB, ref double I, ref double D)
+        {
+            I /= N;
+            for (int row = i - 1; row <= i + 1; row++)
+            {
+                for (int col = j - 1; col <= j + 1; col++)
+                {
+                    color = workImage.GetPixel(row, col);
+                    colorRGB = (color.R + color.G + color.B) / 3;
+
+                    D += Math.Pow(colorRGB - I, 2);
+                }
+            }
+            D /= (N - 1);
+            if (D < T) 
+            {
+                N /= 4;
+                Split(T, ref color, ref N, i, j, ref colorRGB, ref I, ref D);
+            }
         }
     }
 }
